@@ -43,3 +43,6 @@ uvicorn==0.41.0
 uvloop==0.22.1
 watchfiles==1.1.1
 websockets==16.0
+pre-commit==3.7.1
+black==24.4.2
+ruff==0.5.5
