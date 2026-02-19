@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
@@ -61,3 +62,29 @@ async def get_nutrition_entries(
         .limit(limit)
     )
     return result.scalars().all()
+
+
+async def get_exercise_definitions(db: AsyncSession, user_id: int):
+    result = await db.execute(
+        select(models.ExerciseDefinition)
+        .filter(models.ExerciseDefinition.user_id == user_id)
+        .order_by(models.ExerciseDefinition.name)
+    )
+    return result.scalars().all()
+
+
+async def create_exercise_definition(db: AsyncSession, name: str, user_id: int):
+    result = await db.execute(
+        select(models.ExerciseDefinition).filter(
+            models.ExerciseDefinition.user_id == user_id,
+            func.lower(models.ExerciseDefinition.name) == name.lower().strip(),
+        )
+    )
+    existing = result.scalar_one_or_none()
+    if existing:
+        return existing
+    db_def = models.ExerciseDefinition(name=name.strip(), user_id=user_id)
+    db.add(db_def)
+    await db.commit()
+    await db.refresh(db_def)
+    return db_def

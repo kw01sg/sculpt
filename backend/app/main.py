@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .auth import auth_backend, fastapi_users
-from .routers import workouts, nutrition
+from .routers import workouts, nutrition, exercise_definitions
 from .schemas import UserRead, UserCreate, UserUpdate
 
 app = FastAPI()
@@ -33,6 +33,8 @@ app.include_router(
 
 app.include_router(workouts.router, prefix="/api")
 app.include_router(nutrition.router, prefix="/api")
+app.include_router(exercise_definitions.router, prefix="/api")
+
 
 @app.get("/api")
 def read_root():

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Container, Typography, Box, Button, TextField, List, ListItem, ListItemText, Paper, AppBar, Toolbar, IconButton } from '@mui/material';
+import { Container, Typography, Box, Button, TextField, List, ListItem, ListItemText, Paper, AppBar, Toolbar, IconButton, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { createWorkout, getWorkouts } from '../services/api';
-import { Workout, Exercise as ExerciseType } from '../types';
+import { createWorkout, getWorkouts, getExerciseDefinitions } from '../services/api';
+import { Workout, Exercise as ExerciseType, ExerciseDefinition } from '../types';
 import { useAuth } from '../context/AuthContext';
 
 const WorkoutLogPage: React.FC = () => {
@@ -15,10 +15,12 @@ const WorkoutLogPage: React.FC = () => {
   const [newReps, setNewReps] = useState<number>(0);
   const [newWeight, setNewWeight] = useState<number>(0);
   const [pastWorkouts, setPastWorkouts] = useState<Workout[]>([]);
+  const [exerciseOptions, setExerciseOptions] = useState<ExerciseDefinition[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchWorkouts();
+    fetchExerciseDefinitions();
   }, []);
 
   const fetchWorkouts = async () => {
@@ -31,20 +33,29 @@ const WorkoutLogPage: React.FC = () => {
     }
   };
 
+  const fetchExerciseDefinitions = async () => {
+    try {
+      const data = await getExerciseDefinitions();
+      setExerciseOptions(data);
+    } catch (err) {
+      console.error('Failed to fetch exercise definitions:', err);
+    }
+  };
+
   const handleAddExercise = () => {
     if (newExerciseName && newSets > 0 && newReps > 0 && newWeight > 0) {
-      setExercises([...exercises, { 
-        name: newExerciseName, 
-        sets: newSets, 
-        reps: newReps, 
-        weight: newWeight 
+      setExercises([...exercises, {
+        name: newExerciseName,
+        sets: newSets,
+        reps: newReps,
+        weight: newWeight,
       }]);
       setNewExerciseName('');
       setNewSets(0);
       setNewReps(0);
       setNewWeight(0);
     } else {
-      setError('Please fill in all exercise fields correctly.');
+      setError('Please select an exercise and fill in all fields correctly.');
     }
   };
 
@@ -59,7 +70,7 @@ const WorkoutLogPage: React.FC = () => {
       await createWorkout(newWorkout);
       setWorkoutName(new Date().toISOString().slice(0, 10));
       setExercises([]);
-      fetchWorkouts(); // Refresh the list of workouts
+      fetchWorkouts();
     } catch (err) {
       console.error('Failed to log workout:', err);
       setError('Failed to log workout. Please try again.');
@@ -76,6 +87,7 @@ const WorkoutLogPage: React.FC = () => {
             </Link>
           </Typography>
           <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
+          <Button color="inherit" component={Link} to="/exercises">Exercises</Button>
           <Button color="inherit" component={Link} to="/nutrition">Nutrition</Button>
           <Button color="inherit" onClick={logout} component={Link} to="/">Logout</Button>
         </Toolbar>
@@ -103,13 +115,25 @@ const WorkoutLogPage: React.FC = () => {
               ))}
             </List>
             <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'center' }}>
-              <TextField
-                label="Exercise Name"
-                value={newExerciseName}
-                onChange={(e) => setNewExerciseName(e.target.value)}
-                size="small"
-                sx={{ flexGrow: 1 }}
-              />
+              <FormControl size="small" sx={{ flexGrow: 1 }}>
+                <InputLabel>Exercise</InputLabel>
+                <Select
+                  value={newExerciseName}
+                  label="Exercise"
+                  onChange={(e) => setNewExerciseName(e.target.value)}
+                  displayEmpty
+                >
+                  {exerciseOptions.length === 0 ? (
+                    <MenuItem disabled value="">
+                      No exercises in library — add some first
+                    </MenuItem>
+                  ) : (
+                    exerciseOptions.map((opt) => (
+                      <MenuItem key={opt.id} value={opt.name}>{opt.name}</MenuItem>
+                    ))
+                  )}
+                </Select>
+              </FormControl>
               <TextField
                 label="Sets"
                 type="number"
@@ -162,8 +186,8 @@ const WorkoutLogPage: React.FC = () => {
                   <List dense>
                     {workout.exercises.map((ex) => (
                       <ListItem key={ex.id}>
-                        <ListItemText 
-                          primary={`${ex.name}: ${ex.sets} sets, ${ex.reps} reps, ${ex.weight}`} 
+                        <ListItemText
+                          primary={`${ex.name}: ${ex.sets} sets, ${ex.reps} reps, ${ex.weight}`}
                         />
                       </ListItem>
                     ))}

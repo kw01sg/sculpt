@@ -41,3 +41,9 @@ export interface Nutrition {
   protein: number;
   user_id?: number;
 }
+
+export interface ExerciseDefinition {
+  id: number;
+  name: string;
+  user_id?: number;
+}

@@ -16,6 +16,7 @@ const DashboardPage: React.FC = () => {
             </Link>
           </Typography>
           <Button color="inherit" component={Link} to="/workouts">Workouts</Button>
+          <Button color="inherit" component={Link} to="/exercises">Exercises</Button>
           <Button color="inherit" component={Link} to="/nutrition">Nutrition</Button>
           <Button color="inherit" onClick={logout} component={Link} to="/">Logout</Button>
         </Toolbar>

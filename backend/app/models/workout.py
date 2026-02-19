@@ -6,6 +6,7 @@ from ..database import Base
 if TYPE_CHECKING:
     from .user import User
 
+
 class Workout(Base):
     __tablename__ = "workouts"
 
@@ -15,6 +16,7 @@ class Workout(Base):
 
     user: Mapped["User"] = relationship(back_populates="workouts")
     exercises: Mapped[List["Exercise"]] = relationship(back_populates="workout")
+
 
 class Exercise(Base):
     __tablename__ = "exercises"
@@ -28,3 +30,10 @@ class Exercise(Base):
 
     workout: Mapped["Workout"] = relationship(back_populates="exercises")
 
+
+class ExerciseDefinition(Base):
+    __tablename__ = "exercise_definitions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
