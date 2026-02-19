@@ -38,6 +38,7 @@ coverage/
 *.env.*
 !.env.example # if you have an example env file
 !docker-compose.env # specifically keep this for docker-compose
+!docker-compose.prod.template # keep the template, but not the real prod env
 
 # IDEs
 # ========================
