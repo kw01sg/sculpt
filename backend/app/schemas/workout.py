@@ -42,6 +42,10 @@ class ExerciseDefinitionCreate(BaseModel):
     name: str
 
 
+class ExerciseDefinitionUpdate(BaseModel):
+    name: str
+
+
 class ExerciseDefinition(BaseModel):
     id: int
     name: str

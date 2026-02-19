@@ -73,3 +73,12 @@ export const createExerciseDefinition = async (name: string): Promise<ExerciseDe
     const response = await api.post<ExerciseDefinition>('/api/exercise-definitions/', { name });
     return response.data;
 };
+
+export const updateExerciseDefinition = async (id: number, name: string): Promise<ExerciseDefinition> => {
+    const response = await api.patch<ExerciseDefinition>(`/api/exercise-definitions/${id}`, { name });
+    return response.data;
+};
+
+export const deleteExerciseDefinition = async (id: number): Promise<void> => {
+    await api.delete(`/api/exercise-definitions/${id}`);
+};

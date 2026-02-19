@@ -88,3 +88,46 @@ async def create_exercise_definition(db: AsyncSession, name: str, user_id: int):
     await db.commit()
     await db.refresh(db_def)
     return db_def
+
+
+async def update_exercise_definition(
+    db: AsyncSession, id: int, name: str, user_id: int
+):
+    result = await db.execute(
+        select(models.ExerciseDefinition).filter(
+            models.ExerciseDefinition.id == id,
+            models.ExerciseDefinition.user_id == user_id,
+        )
+    )
+    db_def = result.scalar_one_or_none()
+    if not db_def:
+        return None
+    # Check for case-insensitive duplicate (excluding this record)
+    dup_result = await db.execute(
+        select(models.ExerciseDefinition).filter(
+            models.ExerciseDefinition.user_id == user_id,
+            func.lower(models.ExerciseDefinition.name) == name.lower().strip(),
+            models.ExerciseDefinition.id != id,
+        )
+    )
+    if dup_result.scalar_one_or_none():
+        return None  # caller treats this as a conflict
+    db_def.name = name.strip()
+    await db.commit()
+    await db.refresh(db_def)
+    return db_def
+
+
+async def delete_exercise_definition(db: AsyncSession, id: int, user_id: int) -> bool:
+    result = await db.execute(
+        select(models.ExerciseDefinition).filter(
+            models.ExerciseDefinition.id == id,
+            models.ExerciseDefinition.user_id == user_id,
+        )
+    )
+    db_def = result.scalar_one_or_none()
+    if not db_def:
+        return False
+    await db.delete(db_def)
+    await db.commit()
+    return True

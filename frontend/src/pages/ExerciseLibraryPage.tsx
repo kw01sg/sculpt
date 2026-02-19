@@ -5,7 +5,13 @@ import {
   Box,
   Button,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
+  InputAdornment,
   List,
   ListItem,
   ListItemText,
@@ -15,7 +21,16 @@ import {
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { getExerciseDefinitions, createExerciseDefinition } from '../services/api';
+import CheckIcon from '@mui/icons-material/Check';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import {
+  getExerciseDefinitions,
+  createExerciseDefinition,
+  updateExerciseDefinition,
+  deleteExerciseDefinition,
+} from '../services/api';
 import { ExerciseDefinition } from '../types';
 import { useAuth } from '../context/AuthContext';
 
@@ -24,6 +39,13 @@ const ExerciseLibraryPage: React.FC = () => {
   const [exercises, setExercises] = useState<ExerciseDefinition[]>([]);
   const [newName, setNewName] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+
+  // Inline edit state
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState<string>('');
+
+  // Delete confirmation state
+  const [deleteTarget, setDeleteTarget] = useState<ExerciseDefinition | null>(null);
 
   useEffect(() => {
     fetchExercises();
@@ -60,8 +82,59 @@ const ExerciseLibraryPage: React.FC = () => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleAddKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleAdd();
+  };
+
+  const startEdit = (ex: ExerciseDefinition) => {
+    setEditingId(ex.id);
+    setEditValue(ex.name);
+    setError(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditValue('');
+  };
+
+  const commitEdit = async (id: number) => {
+    const trimmed = editValue.trim();
+    if (!trimmed) {
+      setError('Exercise name cannot be empty.');
+      return;
+    }
+    setError(null);
+    try {
+      const updated = await updateExerciseDefinition(id, trimmed);
+      setExercises((prev) =>
+        prev
+          .map((e) => (e.id === id ? updated : e))
+          .sort((a, b) => a.name.localeCompare(b.name))
+      );
+      setEditingId(null);
+      setEditValue('');
+    } catch (err) {
+      console.error('Failed to update exercise:', err);
+      setError('Failed to rename exercise. The name may already exist.');
+    }
+  };
+
+  const handleEditKeyDown = (e: React.KeyboardEvent, id: number) => {
+    if (e.key === 'Enter') commitEdit(id);
+    if (e.key === 'Escape') cancelEdit();
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteExerciseDefinition(deleteTarget.id);
+      setExercises((prev) => prev.filter((e) => e.id !== deleteTarget.id));
+    } catch (err) {
+      console.error('Failed to delete exercise:', err);
+      setError('Failed to delete exercise. Please try again.');
+    } finally {
+      setDeleteTarget(null);
+    }
   };
 
   return (
@@ -79,6 +152,7 @@ const ExerciseLibraryPage: React.FC = () => {
           <Button color="inherit" onClick={logout} component={Link} to="/">Logout</Button>
         </Toolbar>
       </AppBar>
+
       <Container maxWidth="sm">
         <Box sx={{ my: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -96,7 +170,7 @@ const ExerciseLibraryPage: React.FC = () => {
                 label="Exercise Name"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={handleKeyDown}
+                onKeyDown={handleAddKeyDown}
                 size="small"
               />
               <IconButton color="primary" onClick={handleAdd} aria-label="Add exercise">
@@ -116,8 +190,64 @@ const ExerciseLibraryPage: React.FC = () => {
             <List sx={{ width: '100%' }}>
               {exercises.map((ex) => (
                 <Paper key={ex.id} elevation={1} sx={{ mb: 1 }}>
-                  <ListItem>
-                    <ListItemText primary={ex.name} />
+                  <ListItem
+                    secondaryAction={
+                      editingId === ex.id ? (
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => commitEdit(ex.id)}
+                            aria-label="Save"
+                          >
+                            <CheckIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={cancelEdit}
+                            aria-label="Cancel"
+                          >
+                            <CloseIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ) : (
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <IconButton
+                            size="small"
+                            onClick={() => startEdit(ex)}
+                            aria-label={`Edit ${ex.name}`}
+                          >
+                            <EditOutlinedIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            color="error"
+                            onClick={() => setDeleteTarget(ex)}
+                            aria-label={`Delete ${ex.name}`}
+                          >
+                            <DeleteOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      )
+                    }
+                  >
+                    {editingId === ex.id ? (
+                      <TextField
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onKeyDown={(e) => handleEditKeyDown(e, ex.id)}
+                        size="small"
+                        autoFocus
+                        sx={{ mr: 1 }}
+                        slotProps={{
+                          input: {
+                            endAdornment: <InputAdornment position="end" />,
+                          },
+                        }}
+                      />
+                    ) : (
+                      <ListItemText primary={ex.name} />
+                    )}
                   </ListItem>
                 </Paper>
               ))}
@@ -125,6 +255,22 @@ const ExerciseLibraryPage: React.FC = () => {
           )}
         </Box>
       </Container>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteTarget !== null} onClose={() => setDeleteTarget(null)}>
+        <DialogTitle>Delete Exercise</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Delete <strong>{deleteTarget?.name}</strong>? This won't affect exercises already logged in your workouts.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)}>Cancel</Button>
+          <Button onClick={confirmDelete} color="error" variant="contained">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

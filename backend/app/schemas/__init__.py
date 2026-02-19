@@ -5,6 +5,7 @@ from .workout import Exercise as Exercise
 from .workout import ExerciseCreate as ExerciseCreate
 from .workout import ExerciseDefinition as ExerciseDefinition
 from .workout import ExerciseDefinitionCreate as ExerciseDefinitionCreate
+from .workout import ExerciseDefinitionUpdate as ExerciseDefinitionUpdate
 from .workout import Workout as Workout
 from .workout import WorkoutCreate as WorkoutCreate
 from .nutrition import Nutrition as Nutrition
