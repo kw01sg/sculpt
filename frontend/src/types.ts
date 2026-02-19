@@ -47,3 +47,14 @@ export interface ExerciseDefinition {
   name: string;
   user_id?: number;
 }
+
+export interface WorkoutUpdate {
+  name: string;
+}
+
+export interface ExerciseUpdate {
+  name?: string;
+  sets?: number;
+  reps?: number;
+  weight?: number;
+}

@@ -15,7 +15,10 @@ class Workout(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
 
     user: Mapped["User"] = relationship(back_populates="workouts")
-    exercises: Mapped[List["Exercise"]] = relationship(back_populates="workout")
+    exercises: Mapped[List["Exercise"]] = relationship(
+        back_populates="workout",
+        cascade="all, delete-orphan",
+    )
 
 
 class Exercise(Base):

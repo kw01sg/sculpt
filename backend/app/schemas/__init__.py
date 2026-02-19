@@ -8,5 +8,7 @@ from .workout import ExerciseDefinitionCreate as ExerciseDefinitionCreate
 from .workout import ExerciseDefinitionUpdate as ExerciseDefinitionUpdate
 from .workout import Workout as Workout
 from .workout import WorkoutCreate as WorkoutCreate
+from .workout import WorkoutUpdate as WorkoutUpdate
+from .workout import ExerciseUpdate as ExerciseUpdate
 from .nutrition import Nutrition as Nutrition
 from .nutrition import NutritionCreate as NutritionCreate

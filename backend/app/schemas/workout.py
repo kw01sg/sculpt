@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 
 class ExerciseBase(BaseModel):
@@ -19,6 +19,17 @@ class Exercise(ExerciseBase):
 
     class Config:
         from_attributes = True
+
+
+class WorkoutUpdate(BaseModel):
+    name: str
+
+
+class ExerciseUpdate(BaseModel):
+    name: Optional[str] = None
+    sets: Optional[int] = None
+    reps: Optional[int] = None
+    weight: Optional[int] = None
 
 
 class WorkoutBase(BaseModel):

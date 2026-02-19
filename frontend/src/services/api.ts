@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { UserLogin, UserRegister, AuthResponse, Workout, Nutrition, User, ExerciseDefinition } from '../types';
+import { UserLogin, UserRegister, AuthResponse, Workout, Nutrition, User, ExerciseDefinition, WorkoutUpdate, ExerciseUpdate, Exercise } from '../types';
 
 const api = axios.create({
   baseURL: '/', // Use root and specify full paths in requests
@@ -81,4 +81,27 @@ export const updateExerciseDefinition = async (id: number, name: string): Promis
 
 export const deleteExerciseDefinition = async (id: number): Promise<void> => {
     await api.delete(`/api/exercise-definitions/${id}`);
+};
+
+export const updateWorkout = async (workoutId: number, data: WorkoutUpdate): Promise<Workout> => {
+    const response = await api.patch<Workout>(`/api/workouts/${workoutId}`, data);
+    return response.data;
+};
+
+export const deleteWorkout = async (workoutId: number): Promise<void> => {
+    await api.delete(`/api/workouts/${workoutId}`);
+};
+
+export const addExerciseToWorkout = async (workoutId: number, data: { name: string; sets: number; reps: number; weight: number }): Promise<Workout> => {
+    const response = await api.post<Workout>(`/api/workouts/${workoutId}/exercises/`, data);
+    return response.data;
+};
+
+export const updateExercise = async (workoutId: number, exerciseId: number, data: ExerciseUpdate): Promise<Exercise> => {
+    const response = await api.patch<Exercise>(`/api/workouts/${workoutId}/exercises/${exerciseId}`, data);
+    return response.data;
+};
+
+export const deleteExercise = async (workoutId: number, exerciseId: number): Promise<void> => {
+    await api.delete(`/api/workouts/${workoutId}/exercises/${exerciseId}`);
 };

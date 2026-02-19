@@ -52,6 +52,110 @@ async def create_nutrition_entry(
     return db_nutrition
 
 
+async def delete_workout(db: AsyncSession, workout_id: int, user_id: int) -> bool:
+    result = await db.execute(
+        select(models.Workout).filter(
+            models.Workout.id == workout_id,
+            models.Workout.user_id == user_id,
+        )
+    )
+    workout = result.scalar_one_or_none()
+    if not workout:
+        return False
+    await db.delete(workout)
+    await db.commit()
+    return True
+
+
+async def update_workout(db: AsyncSession, workout_id: int, name: str, user_id: int):
+    result = await db.execute(
+        select(models.Workout).filter(
+            models.Workout.id == workout_id,
+            models.Workout.user_id == user_id,
+        )
+    )
+    workout = result.scalar_one_or_none()
+    if not workout:
+        return None
+    workout.name = name
+    await db.commit()
+    result = await db.execute(
+        select(models.Workout)
+        .options(selectinload(models.Workout.exercises))
+        .filter(models.Workout.id == workout_id)
+    )
+    return result.scalar_one()
+
+
+async def add_exercise_to_workout(
+    db: AsyncSession, workout_id: int, exercise: schemas.ExerciseCreate, user_id: int
+):
+    result = await db.execute(
+        select(models.Workout).filter(
+            models.Workout.id == workout_id,
+            models.Workout.user_id == user_id,
+        )
+    )
+    workout = result.scalar_one_or_none()
+    if not workout:
+        return None
+    db_exercise = models.Exercise(**exercise.model_dump(), workout_id=workout_id)
+    db.add(db_exercise)
+    await db.commit()
+    result = await db.execute(
+        select(models.Workout)
+        .options(selectinload(models.Workout.exercises))
+        .filter(models.Workout.id == workout_id)
+    )
+    return result.scalar_one()
+
+
+async def update_exercise(
+    db: AsyncSession,
+    workout_id: int,
+    exercise_id: int,
+    data: schemas.ExerciseUpdate,
+    user_id: int,
+):
+    result = await db.execute(
+        select(models.Exercise)
+        .join(models.Workout)
+        .filter(
+            models.Exercise.id == exercise_id,
+            models.Exercise.workout_id == workout_id,
+            models.Workout.user_id == user_id,
+        )
+    )
+    exercise = result.scalar_one_or_none()
+    if not exercise:
+        return None
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(exercise, field, value)
+    await db.commit()
+    await db.refresh(exercise)
+    return exercise
+
+
+async def delete_exercise(
+    db: AsyncSession, workout_id: int, exercise_id: int, user_id: int
+) -> bool:
+    result = await db.execute(
+        select(models.Exercise)
+        .join(models.Workout)
+        .filter(
+            models.Exercise.id == exercise_id,
+            models.Exercise.workout_id == workout_id,
+            models.Workout.user_id == user_id,
+        )
+    )
+    exercise = result.scalar_one_or_none()
+    if not exercise:
+        return False
+    await db.delete(exercise)
+    await db.commit()
+    return True
+
+
 async def get_nutrition_entries(
     db: AsyncSession, user_id: int, skip: int = 0, limit: int = 100
 ):
