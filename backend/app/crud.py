@@ -36,6 +36,7 @@ async def get_workouts(db: AsyncSession, user_id: int, skip: int = 0, limit: int
             selectinload(models.Workout.exercises)
         )  # Eager load exercises here too
         .filter(models.Workout.user_id == user_id)
+        .order_by(models.Workout.created_at.desc())
         .offset(skip)
         .limit(limit)
     )
