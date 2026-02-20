@@ -1,6 +1,6 @@
-# Copy this file to docker-compose.prod.env and fill in real values.
-# cp docker-compose.prod.template docker-compose.prod.env
-# docker-compose.prod.env is gitignored — never commit it.
+# Copy this file to docker-compose.<env>.env and fill in real values.
+# cp docker-compose.prod.template docker-compose.<env>.env
+# docker-compose.<env>.env is gitignored — never commit it.
 
 # PostgreSQL Settings
 POSTGRES_DB=sculpt
