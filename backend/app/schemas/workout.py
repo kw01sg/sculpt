@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional
 
 
@@ -7,6 +7,15 @@ class ExerciseBase(BaseModel):
     sets: int
     reps: int
     weight: int
+    comment: Optional[str] = None
+
+    @field_validator("comment", mode="before")
+    @classmethod
+    def strip_comment(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        stripped = v.strip()
+        return stripped if stripped else None
 
 
 class ExerciseCreate(ExerciseBase):
@@ -30,6 +39,15 @@ class ExerciseUpdate(BaseModel):
     sets: Optional[int] = None
     reps: Optional[int] = None
     weight: Optional[int] = None
+    comment: Optional[str] = None
+
+    @field_validator("comment", mode="before")
+    @classmethod
+    def strip_comment(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return None
+        stripped = v.strip()
+        return stripped if stripped else None
 
 
 class WorkoutBase(BaseModel):

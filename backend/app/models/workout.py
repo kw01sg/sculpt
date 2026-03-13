@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from datetime import datetime, timezone
 from ..database import Base
 
@@ -43,6 +43,7 @@ class Exercise(Base):
     sets: Mapped[int] = mapped_column(Integer, nullable=False)
     reps: Mapped[int] = mapped_column(Integer, nullable=False)
     weight: Mapped[int] = mapped_column(Integer, nullable=False)
+    comment: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     workout_id: Mapped[int] = mapped_column(Integer, ForeignKey("workouts.id"))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

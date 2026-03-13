@@ -31,6 +31,7 @@ const WorkoutLogPage: React.FC = () => {
   const [newSets, setNewSets] = useState<number>(0);
   const [newReps, setNewReps] = useState<number>(0);
   const [newWeight, setNewWeight] = useState<number>(0);
+  const [newComment, setNewComment] = useState<string>('');
 
   // Past workouts
   const [pastWorkouts, setPastWorkouts] = useState<Workout[]>([]);
@@ -46,14 +47,14 @@ const WorkoutLogPage: React.FC = () => {
 
   // Inline exercise edit
   const [editingExerciseId, setEditingExerciseId] = useState<number | null>(null);
-  const [editingExercise, setEditingExercise] = useState<{ name: string; sets: string; reps: string; weight: string }>({
-    name: '', sets: '', reps: '', weight: '',
+  const [editingExercise, setEditingExercise] = useState<{ name: string; sets: string; reps: string; weight: string; comment: string }>({
+    name: '', sets: '', reps: '', weight: '', comment: '',
   });
 
   // Add exercise to existing workout
   const [addingExerciseToWorkoutId, setAddingExerciseToWorkoutId] = useState<number | null>(null);
-  const [newExForExisting, setNewExForExisting] = useState<{ name: string; sets: string; reps: string; weight: string }>({
-    name: '', sets: '', reps: '', weight: '',
+  const [newExForExisting, setNewExForExisting] = useState<{ name: string; sets: string; reps: string; weight: string; comment: string }>({
+    name: '', sets: '', reps: '', weight: '', comment: '',
   });
 
   // Delete confirmation dialogs
@@ -88,11 +89,13 @@ const WorkoutLogPage: React.FC = () => {
 
   const handleAddExercise = () => {
     if (newExerciseName && newSets > 0 && newReps > 0 && newWeight > 0) {
-      setExercises([...exercises, { name: newExerciseName, sets: newSets, reps: newReps, weight: newWeight }]);
+      const comment = newComment.trim() || undefined;
+      setExercises([...exercises, { name: newExerciseName, sets: newSets, reps: newReps, weight: newWeight, comment }]);
       setNewExerciseName('');
       setNewSets(0);
       setNewReps(0);
       setNewWeight(0);
+      setNewComment('');
     } else {
       setError('Please select an exercise and fill in all fields correctly.');
     }
@@ -164,6 +167,7 @@ const WorkoutLogPage: React.FC = () => {
       sets: String(ex.sets),
       reps: String(ex.reps),
       weight: String(ex.weight),
+      comment: ex.comment ?? '',
     });
   };
 
@@ -178,6 +182,7 @@ const WorkoutLogPage: React.FC = () => {
         sets: editingExercise.sets ? parseInt(editingExercise.sets) : undefined,
         reps: editingExercise.reps ? parseInt(editingExercise.reps) : undefined,
         weight: editingExercise.weight ? parseInt(editingExercise.weight) : undefined,
+        comment: editingExercise.comment.trim() || undefined,
       });
       setPastWorkouts((prev) =>
         prev.map((w) =>
@@ -217,7 +222,7 @@ const WorkoutLogPage: React.FC = () => {
 
   const startAddExercise = (workoutId: number) => {
     setAddingExerciseToWorkoutId(workoutId);
-    setNewExForExisting({ name: '', sets: '', reps: '', weight: '' });
+    setNewExForExisting({ name: '', sets: '', reps: '', weight: '', comment: '' });
   };
 
   const cancelAddExercise = () => {
@@ -225,7 +230,7 @@ const WorkoutLogPage: React.FC = () => {
   };
 
   const saveAddExercise = async (workoutId: number) => {
-    const { name, sets, reps, weight } = newExForExisting;
+    const { name, sets, reps, weight, comment } = newExForExisting;
     if (!name || !sets || !reps || !weight) {
       setError('Please fill in all fields for the new exercise.');
       return;
@@ -236,6 +241,7 @@ const WorkoutLogPage: React.FC = () => {
         sets: parseInt(sets),
         reps: parseInt(reps),
         weight: parseInt(weight),
+        comment: comment.trim() || undefined,
       });
       setPastWorkouts((prev) => prev.map((w) => (w.id === workoutId ? updated : w)));
       cancelAddExercise();
@@ -283,12 +289,15 @@ const WorkoutLogPage: React.FC = () => {
             <List>
               {exercises.map((ex, index) => (
                 <ListItem key={index}>
-                  <ListItemText primary={`${ex.name}: ${ex.sets} sets, ${ex.reps} reps, ${ex.weight}kg`} />
+                  <ListItemText
+                    primary={`${ex.name}: ${ex.sets} sets, ${ex.reps} reps, ${ex.weight}kg`}
+                    secondary={ex.comment || undefined}
+                  />
                 </ListItem>
               ))}
             </List>
-            <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'center' }}>
-              <FormControl size="small" sx={{ flexGrow: 1 }}>
+            <Box sx={{ display: 'flex', gap: 2, mt: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+              <FormControl size="small" sx={{ flexGrow: 1, minWidth: 140 }}>
                 <InputLabel>Exercise</InputLabel>
                 <Select
                   value={newExerciseName}
@@ -308,6 +317,7 @@ const WorkoutLogPage: React.FC = () => {
               <TextField label="Sets" type="number" value={newSets} onChange={(e) => setNewSets(parseInt(e.target.value))} size="small" sx={{ width: 80 }} />
               <TextField label="Reps" type="number" value={newReps} onChange={(e) => setNewReps(parseInt(e.target.value))} size="small" sx={{ width: 80 }} />
               <TextField label="Weight" type="number" value={newWeight} onChange={(e) => setNewWeight(parseInt(e.target.value))} size="small" sx={{ width: 100 }} />
+              <TextField label="Comment" value={newComment} onChange={(e) => setNewComment(e.target.value)} size="small" sx={{ flexGrow: 1, minWidth: 140 }} inputProps={{ maxLength: 500 }} />
               <IconButton color="primary" onClick={handleAddExercise}><AddIcon /></IconButton>
             </Box>
             <Button variant="contained" color="primary" onClick={handleLogWorkout} sx={{ mt: 3 }} fullWidth>
@@ -393,11 +403,15 @@ const WorkoutLogPage: React.FC = () => {
                                   <TextField label="Sets" type="number" size="small" value={editingExercise.sets} onChange={(e) => setEditingExercise((prev) => ({ ...prev, sets: e.target.value }))} sx={{ width: 70 }} />
                                   <TextField label="Reps" type="number" size="small" value={editingExercise.reps} onChange={(e) => setEditingExercise((prev) => ({ ...prev, reps: e.target.value }))} sx={{ width: 70 }} />
                                   <TextField label="Weight" type="number" size="small" value={editingExercise.weight} onChange={(e) => setEditingExercise((prev) => ({ ...prev, weight: e.target.value }))} sx={{ width: 80 }} />
+                                  <TextField label="Comment" size="small" value={editingExercise.comment} onChange={(e) => setEditingExercise((prev) => ({ ...prev, comment: e.target.value }))} sx={{ flexGrow: 1, minWidth: 120 }} inputProps={{ maxLength: 500 }} />
                                   <IconButton size="small" color="primary" onClick={() => saveExercise(workout.id!, ex.id!)}><CheckIcon /></IconButton>
                                   <IconButton size="small" onClick={cancelEditExercise}><CloseIcon /></IconButton>
                                 </Box>
                               ) : (
-                                <ListItemText primary={`${ex.name}: ${ex.sets} sets × ${ex.reps} reps @ ${ex.weight}kg`} />
+                                <ListItemText
+                                  primary={`${ex.name}: ${ex.sets} sets × ${ex.reps} reps @ ${ex.weight}kg`}
+                                  secondary={ex.comment || undefined}
+                                />
                               )}
                             </ListItem>
                           );
@@ -422,6 +436,7 @@ const WorkoutLogPage: React.FC = () => {
                               <TextField label="Sets" type="number" size="small" value={newExForExisting.sets} onChange={(e) => setNewExForExisting((prev) => ({ ...prev, sets: e.target.value }))} sx={{ width: 70 }} />
                               <TextField label="Reps" type="number" size="small" value={newExForExisting.reps} onChange={(e) => setNewExForExisting((prev) => ({ ...prev, reps: e.target.value }))} sx={{ width: 70 }} />
                               <TextField label="Weight" type="number" size="small" value={newExForExisting.weight} onChange={(e) => setNewExForExisting((prev) => ({ ...prev, weight: e.target.value }))} sx={{ width: 80 }} />
+                              <TextField label="Comment" size="small" value={newExForExisting.comment} onChange={(e) => setNewExForExisting((prev) => ({ ...prev, comment: e.target.value }))} sx={{ flexGrow: 1, minWidth: 120 }} inputProps={{ maxLength: 500 }} />
                               <IconButton size="small" color="primary" onClick={() => saveAddExercise(workout.id!)}><CheckIcon /></IconButton>
                               <IconButton size="small" onClick={cancelAddExercise}><CloseIcon /></IconButton>
                             </Box>

@@ -92,7 +92,7 @@ export const deleteWorkout = async (workoutId: number): Promise<void> => {
     await api.delete(`/api/workouts/${workoutId}`);
 };
 
-export const addExerciseToWorkout = async (workoutId: number, data: { name: string; sets: number; reps: number; weight: number }): Promise<Workout> => {
+export const addExerciseToWorkout = async (workoutId: number, data: { name: string; sets: number; reps: number; weight: number; comment?: string }): Promise<Workout> => {
     const response = await api.post<Workout>(`/api/workouts/${workoutId}/exercises/`, data);
     return response.data;
 };

@@ -24,6 +24,7 @@ export interface Exercise {
   sets: number;
   reps: number;
   weight: number;
+  comment?: string;
   workout_id?: number;
 }
 
@@ -57,4 +58,5 @@ export interface ExerciseUpdate {
   sets?: number;
   reps?: number;
   weight?: number;
+  comment?: string;
 }
