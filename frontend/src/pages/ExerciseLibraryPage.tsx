@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import {
-  AppBar,
   Box,
   Button,
   Container,
@@ -17,7 +15,6 @@ import {
   ListItemText,
   Paper,
   TextField,
-  Toolbar,
   Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -32,10 +29,9 @@ import {
   deleteExerciseDefinition,
 } from '../services/api';
 import { ExerciseDefinition } from '../types';
-import { useAuth } from '../context/AuthContext';
+import Layout from '../components/Layout';
 
 const ExerciseLibraryPage: React.FC = () => {
-  const { logout } = useAuth();
   const [exercises, setExercises] = useState<ExerciseDefinition[]>([]);
   const [newName, setNewName] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -138,21 +134,7 @@ const ExerciseLibraryPage: React.FC = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Link to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
-              Sculpt
-            </Link>
-          </Typography>
-          <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
-          <Button color="inherit" component={Link} to="/workouts">Workouts</Button>
-          <Button color="inherit" component={Link} to="/nutrition">Nutrition</Button>
-          <Button color="inherit" onClick={logout} component={Link} to="/">Logout</Button>
-        </Toolbar>
-      </AppBar>
-
+    <Layout>
       <Container maxWidth="sm">
         <Box sx={{ my: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -271,7 +253,7 @@ const ExerciseLibraryPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Layout>
   );
 };
 

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Container, Typography, Box, Button, TextField, List, ListItem,
-  ListItemText, Paper, AppBar, Toolbar, IconButton, Select, MenuItem,
+  ListItemText, Paper, IconButton, Select, MenuItem,
   FormControl, InputLabel, Collapse, Dialog, DialogTitle, DialogContent,
   DialogContentText, DialogActions,
 } from '@mui/material';
@@ -19,10 +18,9 @@ import {
   updateExercise, deleteExercise,
 } from '../services/api';
 import { Workout, Exercise as ExerciseType, ExerciseDefinition } from '../types';
-import { useAuth } from '../context/AuthContext';
+import Layout from '../components/Layout';
 
 const WorkoutLogPage: React.FC = () => {
-  const { logout } = useAuth();
 
   // New workout form
   const [workoutName, setWorkoutName] = useState<string>(new Date().toISOString().slice(0, 10));
@@ -254,21 +252,7 @@ const WorkoutLogPage: React.FC = () => {
   // ─── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <Link to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
-              Sculpt
-            </Link>
-          </Typography>
-          <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
-          <Button color="inherit" component={Link} to="/exercises">Exercises</Button>
-          <Button color="inherit" component={Link} to="/nutrition">Nutrition</Button>
-          <Button color="inherit" onClick={logout} component={Link} to="/">Logout</Button>
-        </Toolbar>
-      </AppBar>
-
+    <Layout>
       <Container maxWidth="md">
         <Box sx={{ my: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -457,7 +441,6 @@ const WorkoutLogPage: React.FC = () => {
           </List>
         </Box>
       </Container>
-
       {/* ── Delete Workout Dialog ── */}
       <Dialog open={!!deleteWorkoutTarget} onClose={() => setDeleteWorkoutTarget(null)}>
         <DialogTitle>Delete Workout</DialogTitle>
@@ -485,7 +468,7 @@ const WorkoutLogPage: React.FC = () => {
           <Button color="error" variant="contained" onClick={confirmDeleteExercise}>Remove</Button>
         </DialogActions>
       </Dialog>
-    </Box>
+    </Layout>
   );
 };
 
