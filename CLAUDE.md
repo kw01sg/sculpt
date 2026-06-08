@@ -40,8 +40,9 @@ sculpt/
 │   │   │   ├── workout.py   # Workout and Exercise models
 │   │   │   └── nutrition.py # Nutrition model
 │   │   ├── routers/         # API route handlers
-│   │   │   ├── workouts.py  # Workout endpoints
-│   │   │   └── nutrition.py # Nutrition endpoints
+│   │   │   ├── workouts.py             # Workout endpoints
+│   │   │   ├── nutrition.py            # Nutrition endpoints
+│   │   │   └── exercise_definitions.py # Exercise library endpoints
 │   │   ├── schemas/         # Pydantic schemas
 │   │   │   ├── user.py
 │   │   │   ├── workout.py
@@ -61,7 +62,8 @@ sculpt/
 │   │   │   ├── RegisterPage.tsx
 │   │   │   ├── DashboardPage.tsx
 │   │   │   ├── WorkoutLogPage.tsx
-│   │   │   └── NutritionLogPage.tsx
+│   │   │   ├── NutritionLogPage.tsx
+│   │   │   └── ExerciseLibraryPage.tsx
 │   │   ├── context/
 │   │   │   └── AuthContext.tsx  # Authentication context provider
 │   │   ├── services/
@@ -104,6 +106,11 @@ sculpt/
 - `protein` (Integer, required)
 - `user_id` (Foreign Key → users.id)
 
+### Exercise Definitions Table
+- `id` (Integer, Primary Key)
+- `name` (String, required) — case-insensitive deduplication enforced at app level
+- `user_id` (Foreign Key → users.id)
+
 ## API Endpoints
 
 ### Authentication (FastAPI Users)
@@ -126,6 +133,10 @@ sculpt/
 ### Nutrition (Protected Routes)
 - `POST /api/nutrition/` - Create nutrition entry
 - `GET /api/nutrition/` - List user's nutrition entries (with pagination)
+
+### Exercise Library (Protected Routes)
+- `GET /api/exercise-definitions/` - List user's exercise definitions (alphabetical)
+- `POST /api/exercise-definitions/` - Create exercise definition (deduplicates case-insensitively)
 
 ## Key Features
 
@@ -318,13 +329,13 @@ Development builds support latest versions of:
 3. Email verification requires SMTP configuration (not set up)
 4. No pagination UI in frontend (though API supports it)
 5. No data visualization/charts for workout progress
-6. No exercise library or templates
+6. No exercise deletion/update in the exercise library
 7. No social features or sharing capabilities
 
 ## Future Enhancement Opportunities
 
 1. Add update/delete operations for workouts and nutrition
-2. Implement workout templates and exercise library
+2. Add update/delete for exercise library entries
 3. Add data visualization (charts, progress tracking)
 4. Implement workout history and statistics
 5. Add meal planning features
@@ -350,3 +361,10 @@ Development builds support latest versions of:
 - Database relationships use SQLAlchemy 2.0 mapped_column syntax
 - TypeScript strict mode is not explicitly enabled
 - The proxy configuration routes `/api` requests from frontend to backend
+
+## Active Technologies
+- Python 3.11 (backend), TypeScript / Node 18 (frontend) + FastAPI, SQLAlchemy 2.0 async, Alembic, Pydantic v2, React 19, MUI v7, Axios (001-exercise-comments)
+- PostgreSQL 13 (via asyncpg) (001-exercise-comments)
+
+## Recent Changes
+- 001-exercise-comments: Added Python 3.11 (backend), TypeScript / Node 18 (frontend) + FastAPI, SQLAlchemy 2.0 async, Alembic, Pydantic v2, React 19, MUI v7, Axios
