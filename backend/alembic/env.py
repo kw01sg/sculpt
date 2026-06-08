@@ -10,7 +10,7 @@ from sqlalchemy import pool
 from alembic import context
 
 # Add the project root to the sys.path
-sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
 load_dotenv()
 
 # this is the Alembic Config object, which provides
@@ -24,8 +24,7 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from app.database import Base
-from app.models import user, workout, nutrition # Import all your models here
+from app.database import Base  # noqa: E402
 
 target_metadata = Base.metadata
 
@@ -34,9 +33,9 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+
 def run_migrations_offline() -> None:
-    """Run migrations in 'offline' mode.
-    """
+    """Run migrations in 'offline' mode."""
     url = os.getenv("DATABASE_URL")
     context.configure(
         url=url,
@@ -57,8 +56,7 @@ def do_run_migrations(connection):
 
 
 async def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
-    """
+    """Run migrations in 'online' mode."""
     configuration = config.get_section(config.config_ini_section)
     configuration["sqlalchemy.url"] = os.getenv("DATABASE_URL")
     connectable = create_async_engine(

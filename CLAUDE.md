@@ -365,6 +365,8 @@ Development builds support latest versions of:
 ## Active Technologies
 - Python 3.11 (backend), TypeScript / Node 18 (frontend) + FastAPI, SQLAlchemy 2.0 async, Alembic, Pydantic v2, React 19, MUI v7, Axios (001-exercise-comments)
 - PostgreSQL 13 (via asyncpg) (001-exercise-comments)
+- Python 3.11 (backend), Node 18 / TypeScript (frontend), YAML (GitHub Actions workflows) + Railway GitHub App (native CD), GitHub Actions (CI quality gates), Nginx (frontend production server), Alembic (migrations on startup) (002-setup-cicd)
+- Supabase PostgreSQL — two instances: `sculpt-prod` (production) and `sculpt-dev` (develop + PR previews) (002-setup-cicd)
 
 ## Recent Changes
 - 001-exercise-comments: Added Python 3.11 (backend), TypeScript / Node 18 (frontend) + FastAPI, SQLAlchemy 2.0 async, Alembic, Pydantic v2, React 19, MUI v7, Axios
