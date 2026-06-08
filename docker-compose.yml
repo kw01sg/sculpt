@@ -21,16 +21,23 @@ services:
     env_file:
       - ./docker-compose.env
     command: >
-      bash -c "python wait_for_db.py && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+      bash -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: development
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - backend
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=3000
 
 volumes:
   postgres_data:
