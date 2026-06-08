@@ -13,20 +13,26 @@ from .models import User
 
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key")
 
+
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     reset_password_token_secret = SECRET_KEY
     verification_token_secret = SECRET_KEY
 
+
 async def get_user_db(session: AsyncSession = Depends(get_async_db)):
     yield SQLAlchemyUserDatabase(session, User)
+
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase = Depends(get_user_db)):
     yield UserManager(user_db)
 
+
 bearer_transport = BearerTransport(tokenUrl="auth/jwt/login")
+
 
 def get_jwt_strategy() -> JWTStrategy:
     return JWTStrategy(secret=SECRET_KEY, lifetime_seconds=3600)
+
 
 auth_backend = AuthenticationBackend(
     name="jwt-auth",
