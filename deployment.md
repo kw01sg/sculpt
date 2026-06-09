@@ -1,49 +1,70 @@
 # Deployment Guide: Railway + Supabase
 
-This guide explains how to deploy Sculpt to [Railway](https://railway.app/) using its native Docker support and [Supabase](https://supabase.com/) as the database.
-
 ## 1. Multi-Environment Strategy
-Railway allows you to create separate **Environments** (e.g., `Production`, `Develop`) within a single project.
 
-*   **Production:** Triggered by merges to `main`.
-*   **Develop:** Triggered by pushes to `develop`.
-*   **PR Previews:** Railway automatically creates a temporary environment for every Pull Request, allowing you to test features in isolation before merging.
+| Environment | Branch trigger | Supabase instance |
+| :--- | :--- | :--- |
+| Production | merge to `main` | `sculpt-prod` |
+| Develop | push to `develop` | `sculpt-dev` |
+| PR Preview | any PR → `main` | `sculpt-dev` (shared) |
 
-## 2. Infrastructure Setup
+## 2. Supabase Setup
 
-### A. Supabase (Database)
 1. Create two Supabase projects: `sculpt-prod` and `sculpt-dev`.
-2. **Crucial:** Use the **Transaction Mode** connection string (port 6543) for the `DATABASE_URL`. This uses Supavisor for connection pooling, which is necessary for FastAPI's async nature.
+2. For each, go to **Project Settings → Database → Connection Pooling → Transaction mode** and copy the connection string (port 6543).
    - Format: `postgres://postgres.[USER]:[PASS]@aws-0-[REGION].pooler.supabase.com:6543/postgres?pgbouncer=true`
+3. When creating a project, **disable** Data API, auto-expose tables, and automatic RLS — Sculpt connects directly via SQLAlchemy and does not use Supabase client libraries.
 
-### B. Railway (Services)
-1. **Add Backend Service:**
-   - Source: `/backend` folder.
-   - Port: `8000`.
-   - Health Check Path: `/api` (Railway waits for this to return 200 before routing traffic).
-   - Variables: `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS`.
-2. **Add Frontend Service:**
-   - Source: `/frontend` folder.
-   - Port: `80`.
-   - Railway will use the `production` stage in your `Dockerfile` (Nginx).
+## 3. Railway Setup
 
-## 3. Configuration Details
+### Create the project
+1. railway.app → New Project → Deploy from GitHub repo → authorise Railway GitHub App → select repo.
+2. Railway creates a default environment — rename it to match your target (`Production` or `Develop`) and set the branch trigger accordingly.
+3. For **PR Preview environments**: Project Settings → PR Environments → Enable → base environment: `Develop`.
 
-### Internal Networking
-By default, your frontend's `nginx.conf` proxies `/api` to `http://backend:8000`. In Railway, use the internal service name to keep traffic off the public internet:
+### Add backend service
+- Source directory: `/backend`
+- Health check path: `/api`
+- Environment variables:
+
+| Variable | Value |
+| :--- | :--- |
+| `PORT` | `8000` |
+| `DATABASE_URL` | Supabase Transaction Pooler URL (port 6543) |
+| `JWT_SECRET` | `openssl rand -hex 32` |
+| `CORS_ORIGINS` | `https://<frontend-public-domain>` |
+
+> Set `CORS_ORIGINS` after the frontend service is created and Railway assigns it a public domain.
+
+### Add frontend service
+- Source directory: `/frontend`
+- Railway uses the `production` Docker stage (Nginx) automatically.
+- Generate a public domain under **Networking → Public Domain**.
+- No environment variables needed.
+
+## 4. Known Configuration Details
+
+### Internal networking
+`nginx.conf` proxies `/api` to the backend using Railway's private network. The hostname must match the Railway service name (check **Private Networking** in the service settings):
+
 ```nginx
 location /api {
-    proxy_pass http://backend.railway.internal:8000;
+    resolver 127.0.0.11 valid=30s;
+    set $backend "http://<service-name>.railway.internal:8000";
+    proxy_pass $backend;
 }
 ```
 
-### Environment Variables & CORS
-| Variable | Value | Notes |
-| :--- | :--- | :--- |
-| `DATABASE_URL` | `postgres://...:6543/...` | Use Transaction Pooler |
-| `CORS_ORIGINS` | `https://sculpt.up.railway.app` | Your frontend's public URL |
+The `resolver` directive is required — without it nginx resolves the hostname at startup and crashes if the backend isn't ready yet.
 
-## 4. Deployment Workflow
-1. **Develop:** Push to `develop`. Test at the development URL.
-2. **Review:** Open a PR to `main`. Railway generates a **Preview URL**.
-3. **Deploy:** Merge to `main`. Railway performs a zero-downtime "rolling update" to Production.
+### Supabase pgbouncer compatibility
+The transaction pooler does not support prepared statements. `statement_cache_size=0` is set in `database.py` to disable them — no action required.
+
+### DATABASE_URL scheme
+Supabase provides `postgres://` URLs. The app rewrites them to `postgresql+asyncpg://` at runtime — no action required.
+
+## 5. Deployment Workflow
+
+1. **Develop:** Push to `develop` → Railway deploys to Develop environment.
+2. **Review:** Open a PR to `main` → Railway generates a Preview URL.
+3. **Deploy:** Merge to `main` → Railway zero-downtime rolling update to Production.
