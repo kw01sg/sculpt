@@ -40,7 +40,13 @@
 - Source directory: `/frontend`
 - Railway uses the `production` Docker stage (Nginx) automatically.
 - Generate a public domain under **Networking → Public Domain**.
-- No environment variables needed.
+- Environment variables:
+
+| Variable | Value |
+| :--- | :--- |
+| `REACT_APP_BACKEND_URL` | `https://<backend-public-domain>` |
+
+> `REACT_APP_BACKEND_URL` is baked into the JS bundle at build time. Set it before the first deploy, or redeploy after setting it.
 
 ## 4. Known Configuration Details
 

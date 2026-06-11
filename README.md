@@ -8,6 +8,25 @@ Here is how you can run the application:
 
 - Make sure you have [Docker](https://www.docker.com/products/docker-desktop/) installed and running on your system.
 
+## Environment Variables
+
+### Frontend
+
+| Variable | Description |
+| :--- | :--- |
+| `REACT_APP_BACKEND_URL` | Public URL of the backend API (e.g. `https://your-backend.railway.app`) |
+
+### Backend
+
+| Variable | Description |
+| :--- | :--- |
+| `PORT` | Port the server listens on |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_SECRET` | Secret key for signing JWT tokens |
+| `CORS_ORIGINS` | Comma-separated list of allowed frontend origins |
+
+> For local development these are set in `docker-compose.env`. For Railway deployment see `deployment.md`.
+
 ## 1. Start the Application
 
 Open your terminal in the root directory of the `sculpt` project and run the following command:
