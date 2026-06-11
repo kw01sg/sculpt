@@ -2,7 +2,7 @@ import axios from 'axios';
 import { UserLogin, UserRegister, AuthResponse, Workout, Nutrition, User, ExerciseDefinition, WorkoutUpdate, ExerciseUpdate, Exercise } from '../types';
 
 const api = axios.create({
-  baseURL: '/', // Use root and specify full paths in requests
+  baseURL: process.env.REACT_APP_BACKEND_URL || '',
   headers: {
     'Content-Type': 'application/json',
   },
