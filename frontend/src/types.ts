@@ -24,6 +24,7 @@ export interface Exercise {
   sets: number;
   reps: number;
   weight: number;
+  comment?: string;
   workout_id?: number;
 }
 
@@ -40,4 +41,22 @@ export interface Nutrition {
   calories: number;
   protein: number;
   user_id?: number;
+}
+
+export interface ExerciseDefinition {
+  id: number;
+  name: string;
+  user_id?: number;
+}
+
+export interface WorkoutUpdate {
+  name: string;
+}
+
+export interface ExerciseUpdate {
+  name?: string;
+  sets?: number;
+  reps?: number;
+  weight?: number;
+  comment?: string;
 }

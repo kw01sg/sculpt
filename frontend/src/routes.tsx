@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import WorkoutLogPage from './pages/WorkoutLogPage';
 import NutritionLogPage from './pages/NutritionLogPage';
+import ExerciseLibraryPage from './pages/ExerciseLibraryPage';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -16,6 +17,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/workouts" element={<WorkoutLogPage />} />
       <Route path="/nutrition" element={<NutritionLogPage />} />
+      <Route path="/exercises" element={<ExerciseLibraryPage />} />
       {/* Add a catch-all route for 404 Not Found */}
       <Route path="*" element={<div>404 Not Found</div>} />
     </Routes>

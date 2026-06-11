@@ -8,6 +8,25 @@ Here is how you can run the application:
 
 - Make sure you have [Docker](https://www.docker.com/products/docker-desktop/) installed and running on your system.
 
+## Environment Variables
+
+### Frontend
+
+| Variable | Description |
+| :--- | :--- |
+| `REACT_APP_BACKEND_URL` | Public URL of the backend API (e.g. `https://your-backend.railway.app`) |
+
+### Backend
+
+| Variable | Description |
+| :--- | :--- |
+| `PORT` | Port the server listens on |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `JWT_SECRET` | Secret key for signing JWT tokens |
+| `CORS_ORIGINS` | Comma-separated list of allowed frontend origins |
+
+> For local development these are set in `docker-compose.env`. For Railway deployment see `deployment.md`.
+
 ## 1. Start the Application
 
 Open your terminal in the root directory of the `sculpt` project and run the following command:
@@ -31,7 +50,34 @@ Once the containers are running, you can access the different parts of the appli
 - **Frontend (Sculpt App):** Open your web browser and navigate to [http://localhost:3000](http://localhost:3000)
 - **Backend API:** The API is accessible at `http://localhost:8000`. You can access the API documentation at [http://localhost:8000/docs](http://localhost:8000/docs).
 
-## 3. Stop the Application
+## 3. Restart Services (After Code Changes)
+
+After making code changes, you can restart individual services to pick up the changes:
+
+```bash
+# Restart a specific service (e.g., backend)
+docker-compose restart backend
+
+# Restart the frontend
+docker-compose restart frontend
+
+# Restart all services
+docker-compose restart
+```
+
+**Note:** The backend is configured with hot-reload (`--reload` flag), so it will automatically detect changes without needing a restart. For the frontend, a restart will pick up your source code changes.
+
+If you need to rebuild after dependency changes (e.g., new packages in `package.json` or `requirements.txt`):
+
+```bash
+# Rebuild and restart a specific service
+docker-compose up -d --build backend
+
+# Rebuild and restart all services
+docker-compose up -d --build
+```
+
+## 4. Stop the Application
 
 To stop all the running containers and remove them automatically, run:
 

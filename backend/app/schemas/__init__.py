@@ -1,3 +1,14 @@
-from .user import UserRead, UserCreate, UserUpdate
-from .workout import Workout, WorkoutCreate, Exercise, ExerciseCreate
-from .nutrition import Nutrition, NutritionCreate
+from .user import UserCreate as UserCreate
+from .user import UserRead as UserRead
+from .user import UserUpdate as UserUpdate
+from .workout import Exercise as Exercise
+from .workout import ExerciseCreate as ExerciseCreate
+from .workout import ExerciseDefinition as ExerciseDefinition
+from .workout import ExerciseDefinitionCreate as ExerciseDefinitionCreate
+from .workout import ExerciseDefinitionUpdate as ExerciseDefinitionUpdate
+from .workout import Workout as Workout
+from .workout import WorkoutCreate as WorkoutCreate
+from .workout import WorkoutUpdate as WorkoutUpdate
+from .workout import ExerciseUpdate as ExerciseUpdate
+from .nutrition import Nutrition as Nutrition
+from .nutrition import NutritionCreate as NutritionCreate

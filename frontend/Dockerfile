@@ -1,4 +1,24 @@
-# Stage 1: Build the React application
+# Development stage with hot reloading
+FROM node:18-alpine AS development
+
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application's code
+COPY . .
+
+# Expose port 3000 for React dev server
+EXPOSE 3000
+
+# Start the development server with hot reloading
+CMD ["npm", "start"]
+
+# Production build stage
 FROM node:18-alpine AS build
 
 WORKDIR /app
@@ -12,11 +32,14 @@ RUN npm install
 # Copy the rest of the application's code
 COPY . .
 
+ARG REACT_APP_BACKEND_URL
+ENV REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL
+
 # Build the application
 RUN npm run build
 
-# Stage 2: Serve the application with Nginx
-FROM nginx:stable-alpine
+# Production stage: Serve the application with Nginx
+FROM nginx:stable-alpine AS production
 
 # Copy the built files from the build stage
 COPY --from=build /app/build /usr/share/nginx/html
